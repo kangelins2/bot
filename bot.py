@@ -21,6 +21,7 @@ class Profile(StatesGroup):
     age = State()
     color = State()
     group = State()
+    phone = State()
 
 
 @dp.message(Command("start"))
@@ -57,7 +58,14 @@ async def color(message: Message, state: FSMContext):
 @dp.message(Profile.group)
 async def group(message: Message, state: FSMContext):
     await state.update_data(group=message.text)
-    await message.answer("Спасибо!")
+    await message.answer("Спасибо! Введите свой номер телефона.")
+    await state.set_state(Profile.phone)
+
+
+@dp.message(Profile.phone)
+async def phone(message: Message, state: FSMContext):
+    await state.update_data(phone=message.text)
+    await message.answer("Спасибо, наберу вечерком!")
     data = await state.get_data()
     await state.clear()
     user_id = message.from_user.id
