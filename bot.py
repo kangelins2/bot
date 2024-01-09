@@ -1,12 +1,12 @@
 import asyncio
 import json
 
-from aiogram import Dispatcher, Bot, F
+from aiogram import Dispatcher, Bot
 from aiogram.filters import Command
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message
 from envparse import Env
-from aiogram.fsm.state import StatesGroup, State
-from aiogram.fsm.context import FSMContext
 
 env = Env()
 
@@ -22,17 +22,20 @@ class Profile(StatesGroup):
     color = State()
     group = State()
 
+
 @dp.message(Command("start"))
 async def start(message: Message, state: FSMContext):
     await message.answer("Привет!")
     await message.answer("Представься пожалуйста!")
     await state.set_state(Profile.name)
 
+
 @dp.message(Profile.name)
 async def name(message: Message, state: FSMContext):
     await state.update_data(name=message.text)
     await message.answer("Хорошо, сколько тебе лет?")
     await state.set_state(Profile.age)
+
 
 @dp.message(Profile.age)
 async def age(message: Message, state: FSMContext):
@@ -43,11 +46,13 @@ async def age(message: Message, state: FSMContext):
     await message.answer("Хорошо, какой твой любимый цвет?")
     await state.set_state(Profile.color)
 
+
 @dp.message(Profile.color)
 async def color(message: Message, state: FSMContext):
     await state.update_data(color=message.text)
     await message.answer("Хорошо, в какой ты группе?")
     await state.set_state(Profile.group)
+
 
 @dp.message(Profile.group)
 async def group(message: Message, state: FSMContext):
@@ -58,6 +63,7 @@ async def group(message: Message, state: FSMContext):
     user_id = message.from_user.id
     with open(f"{user_id}.json", 'w', encoding='utf-8') as f:
         json.dump(data, f)
+
 
 # @dp.message(Command("start"))
 # async def start(message: Message) -> None:
